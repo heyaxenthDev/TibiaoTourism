@@ -1,3 +1,7 @@
+<?php 
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -27,14 +31,14 @@
   <!-- Template Main CSS File -->
   <link href="assets/css/index.css" rel="stylesheet">
 
-
-
 </head>
 
 <body>
 
   <main id="main">
-
+<?php 
+include "includes/alert.php";
+?>
   <!-- ======= Hero Section ======= -->
   <section id="hero">
     <div class="hero-container" data-aos="fade-up">
