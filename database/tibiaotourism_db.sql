@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 19, 2024 at 09:08 AM
+-- Generation Time: Jun 20, 2024 at 04:29 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -35,6 +35,13 @@ CREATE TABLE `admin` (
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+--
+-- Dumping data for table `admin`
+--
+
+INSERT INTO `admin` (`id`, `name`, `email`, `password`, `date_created`) VALUES
+(1, 'Hya Cynth Dojillo', 'hyacynthdojillo@gmail.com', '$2y$10$DIgBNto2G/fX01RIv4ynjuMthwUpgo4lLcQsIsDHrtmHztjox4JIi', '2024-06-20 13:42:47');
+
 -- --------------------------------------------------------
 
 --
@@ -51,6 +58,7 @@ CREATE TABLE `guests` (
   `phone` varchar(255) NOT NULL,
   `destination` varchar(255) NOT NULL,
   `type_of_stay` tinyint(1) NOT NULL,
+  `arrival_date_time` timestamp NULL DEFAULT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -97,7 +105,7 @@ ALTER TABLE `resorts`
 -- AUTO_INCREMENT for table `admin`
 --
 ALTER TABLE `admin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `guests`
