@@ -37,20 +37,30 @@ include "includes/conn.php";
 </head>
 
 <body>
-    <?php 
-    $admin_email = $_SESSION['admin_email'];
-    $id = $_SESSION['admin_id'];
+    <?php
+      // Check if admin is logged in
+      if (isset($_SESSION['admin_email']) && isset($_SESSION['admin_id'])) {
+          $admin_email = $_SESSION['admin_email'];
+          $id = $_SESSION['admin_id'];
 
-    $select_admin = "SELECT * FROM `admin` WHERE `email` = '$admin_email' AND `id` = '$id'";
-    $result = mysqli_query($conn, $select_admin);
+          // Query to select admin details
+          $select_admin = "SELECT *, SUBSTRING_INDEX(TRIM(name), ' ', -1) AS lastname FROM `admin` WHERE `email` = '$admin_email' AND `id` = '$id'";
+          $result = mysqli_query($conn, $select_admin);
 
-    if ($result && mysqli_num_rows($result) > 0) {
-      while ($row = mysqli_fetch_assoc($result)) {
-        $name = $row['name'];
-        $email = $row['email'];
+          if ($result && mysqli_num_rows($result) > 0) {
+              while ($row = mysqli_fetch_assoc($result)) {
+                  $short_name = substr($row['name'], 0, 1) . ".". $row['lastname'];
+                  $name = $row['name'];
+                  $email = $row['email'];
+              }
+          } else {
+              echo "No admin found with the given credentials.";
+          }
+      } else {
+          echo "No admin is logged in.";
       }
-    }
-    ?>
+
+      ?>
     <!-- ======= Header ======= -->
     <header id="header" class="header fixed-top d-flex align-items-center">
 
@@ -211,17 +221,17 @@ include "includes/conn.php";
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                         <img src="assets/img/user.png" alt="Profile" class="rounded-circle">
                         <span class="d-none d-md-block dropdown-toggle ps-2">
-                            <? $name ?>
+                            <?= $short_name ?>
                         </span>
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                         <li class="dropdown-header">
                             <h6>
-                                <? $name ?>
+                                <?= $name ?>
                             </h6>
                             <span>
-                                <? $email ?>
+                                <?= $email ?>
                             </span>
                         </li>
                         <li>
