@@ -1,5 +1,6 @@
 <?php 
 session_start();
+include "includes/conn.php";
 ?>
 
 <!DOCTYPE html>
@@ -49,7 +50,7 @@ session_start();
                 </ul>
             </nav>
 
-            <a class="btn-getstarted" href="index#about">Get Started</a>
+            <a class="btn-getstarted" href="index#register">Get Started</a>
         </div>
     </header>
 
@@ -69,7 +70,7 @@ session_start();
                         Lorem Ipsum is simply dummy text of the printing and typesetting industry.<br />
                     </p>
                     <div class="d-flex" data-aos="fade-up" data-aos-delay="200">
-                        <a href="#about" class="btn-get-started">Get Started</a>
+                        <a href="#register" class="btn-get-started">Get Started</a>
                         <a href="https://www.youtube.com/watch?v=LXb3EKWsInQ"
                             class="glightbox btn-watch-video d-flex align-items-center"><i
                                 class="bi bi-play-circle"></i><span>Watch Video</span></a>
@@ -82,7 +83,7 @@ session_start();
         <!-- /Hero Section -->
 
         <!-- About Section -->
-        <section id="about" class="about section">
+        <section id="register" class="register section">
 
             <div class="container">
 
@@ -93,7 +94,7 @@ session_start();
                         <h3>Start Your Registration Here</h3>
 
                         <!-- Guest Registration Form -->
-                        <form class="row g-3" action="your_action_page.php" method="POST">
+                        <form class="row g-3" action="login-code.php" method="POST">
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="text" class="form-control form-control-sm" id="floatingFirstName"
@@ -134,11 +135,29 @@ session_start();
                             </div>
                             <div class="col-md-12">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control form-control-sm" id="floatingDestination"
-                                        name="destination" placeholder="Destination" required>
+                                    <select class="form-select form-select-sm" id="floatingDestination"
+                                        name="destination" aria-label="Destination" required>
+                                        <option selected disabled value="">Select Destination</option>
+                                        <?php
+
+                                        // Fetch destinations from the database
+                                        $sql = "SELECT name FROM resorts";
+                                        $result = $conn->query($sql);
+
+                                        if ($result->num_rows > 0) {
+                                            while ($row = $result->fetch_assoc()) {
+                                                echo "<option value='" . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . "</option>";
+                                            }
+                                        }
+
+                                        // Close connection
+                                        // $conn->close();
+                                        ?>
+                                    </select>
                                     <label for="floatingDestination">Destination</label>
                                 </div>
                             </div>
+
                             <div class="col-md-12">
                                 <label class="form-label">Stay Type</label>
                                 <div class="form-check">
@@ -153,7 +172,7 @@ session_start();
                                 </div>
                             </div>
                             <div class="col-12">
-                                <button type="submit" class="btn read-more">Register</button>
+                                <button type="submit" class="btn read-more" name="GuestRegistration">Register</button>
                             </div>
                         </form><!-- End Guest Registration Form -->
 
@@ -176,7 +195,7 @@ session_start();
 
                     </div>
 
-                    <div class="col-lg-6 about-images mt-5 pt-5" data-aos="fade-up" data-aos-delay="200">
+                    <div class="col-lg-6 register-images mt-5 pt-5" data-aos="fade-up" data-aos-delay="200">
                         <div class="row gy-4">
                             <div class="col-lg-6">
                                 <img src="assets/img/featured00.jpg" class="img-fluid" alt="">

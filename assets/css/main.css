@@ -1006,43 +1006,43 @@ section,
 }
 
 /*--------------------------------------------------------------
-# About Section
+# Register Section
 --------------------------------------------------------------*/
-.about {
+.register {
   padding-bottom: 20px;
 }
 
-.about .content .who-we-are {
+.register .content .who-we-are {
   text-transform: uppercase;
   margin-bottom: 15px;
   color: color-mix(in srgb, var(--default-color), transparent 40%);
 }
 
-.about .content h3 {
+.register .content h3 {
   font-size: 2rem;
   font-weight: 700;
 }
 
-.about .content ul {
+.register .content ul {
   list-style: none;
   padding: 0;
 }
 
-.about .content ul li {
+.register .content ul li {
   padding-bottom: 10px;
 }
 
-.about .content ul i {
+.register .content ul i {
   font-size: 1.25rem;
   margin-right: 4px;
   color: var(--accent-color);
 }
 
-.about .content p:last-child {
+.register .content p:last-child {
   margin-bottom: 0;
 }
 
-.about .content .read-more {
+.register .content .read-more {
   background: var(--accent-color);
   color: var(--contrast-color);
   font-family: var(--heading-font);
@@ -1057,23 +1057,23 @@ section,
   justify-content: center;
 }
 
-.about .content .read-more i {
+.register .content .read-more i {
   font-size: 18px;
   margin-left: 5px;
   line-height: 0;
   transition: 0.3s;
 }
 
-.about .content .read-more:hover {
+.register .content .read-more:hover {
   background: color-mix(in srgb, var(--accent-color), transparent 20%);
   padding-right: 19px;
 }
 
-.about .content .read-more:hover i {
+.register .content .read-more:hover i {
   margin-left: 10px;
 }
 
-.about .about-images img {
+.register .register-images img {
   border-radius: 10px;
 }
 

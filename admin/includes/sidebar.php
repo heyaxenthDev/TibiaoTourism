@@ -15,7 +15,8 @@
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link <?php echo $current_page == 'resort data.php' ? '' : 'collapsed'; ?>" href="resort data.php">
+            <a class="nav-link <?php echo $current_page == 'resort data.php' ? '' : 'collapsed'; ?>"
+                href="resort data.php">
                 <i class="bi bi-clipboard-data"></i>
                 <span>Resort Data</span>
             </a>
@@ -28,10 +29,11 @@
             </a>
         </li><!-- End Notifications Nav -->
 
-        <li class="nav-heading">Pages</li>
+        <li class="nav-heading">User</li>
 
         <li class="nav-item">
-            <a class="nav-link <?php echo $current_page == 'users-profile.php' ? '' : 'collapsed'; ?>" href="users-profile.php">
+            <a class="nav-link <?php echo $current_page == 'users-profile.php' ? '' : 'collapsed'; ?>"
+                href="users-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>

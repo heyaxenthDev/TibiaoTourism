@@ -88,7 +88,54 @@ if (isset($_POST['LoginAdmin'])) {
         exit();
     }
 
-    // Close connection
-    $conn->close();
 }
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) {
+
+    // Get form data
+    $firstName = $conn->real_escape_string($_POST['first_name']);
+    $lastName = $conn->real_escape_string($_POST['last_name']);
+    $age = $conn->real_escape_string($_POST['age']);
+    $contactPreference = $conn->real_escape_string($_POST['contact_preference']);
+    $contact = $conn->real_escape_string($_POST['contact']);
+    $destination = $conn->real_escape_string($_POST['destination']);
+    $stayType = $conn->real_escape_string($_POST['stay_type']);
+
+    $emptyString = null;
+
+    // Generate guest code
+    $randomNumbers = rand(10000, 99999);
+    $guestCode = 'guest-' . $randomNumbers;
+
+    // Insert data into database
+    $stmt = $conn->prepare("INSERT INTO `guests` (`guest_code`, `firstname`, `lastname`, `age`, `email`, `phone`, `destination`, `type_of_stay`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+    // Bind parameters
+    if ($contactPreference == 'email') {
+        $stmt->bind_param("ssssssss", $guestCode, $firstName, $lastName, $age, $contact, $emptyString, $destination, $stayType);
+    } else {
+        $stmt->bind_param("ssssssss", $guestCode, $firstName, $lastName, $age, $emptyString, $contact, $destination, $stayType);
+    }
+
+    if ($stmt->execute()) {
+        $_SESSION['status'] = "Success";
+        $_SESSION['status_text'] = "New guest registered successfully!";
+        $_SESSION['status_code'] = "success";
+        $_SESSION['status_btn'] = "Done";
+        header("Location: success?GuestCode=$guestCode");
+        exit;
+    } else {
+        $_SESSION['status'] = "Error";
+        $_SESSION['status_text'] = "Error: " . $stmt->error;
+        $_SESSION['status_code'] = "error";
+        $_SESSION['status_btn'] = "ok";
+        header("Location: {$_SERVER['HTTP_REFERER']}");
+        exit;
+    }
+
+    // Close connection
+    $stmt->close();
+}
+
+$conn->close();
 ?>
