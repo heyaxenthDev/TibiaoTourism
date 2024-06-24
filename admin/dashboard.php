@@ -56,229 +56,144 @@ Toast.fire({
             <div class="col-lg-8">
                 <div class="row">
 
-                    <!-- Reports -->
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Reports</h5>
-
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <?php 
+                                $sql = "SELECT id, name FROM resorts";
+                                $result = $conn->query($sql);
+
+                                if ($result->num_rows > 0) {
+                                    $active = 'active'; // To set the first tab as active
+                                    while($row = $result->fetch_assoc()){
+                                ?>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab"
-                                        data-bs-target="#home" type="button" role="tab" aria-controls="home"
-                                        aria-selected="true">Calawag</button>
+                                    <button class="nav-link <?= $active; ?>" id="<?= $row['name'];?>-tab"
+                                        data-bs-toggle="tab" data-bs-target="#<?= $row['name'];?>" type="button"
+                                        role="tab" aria-controls="<?= $row['name'];?>"
+                                        aria-selected="true"><?= $row['name'];?></button>
                                 </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="profile-tab" data-bs-toggle="tab"
-                                        data-bs-target="#profile" type="button" role="tab" aria-controls="profile"
-                                        aria-selected="false">Blue Wave</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab"
-                                        data-bs-target="#contact" type="button" role="tab" aria-controls="contact"
-                                        aria-selected="false">Le Escapo</button>
-                                </li>
+                                <?php
+                                        $active = ''; // Reset active for subsequent tabs
+                                    }
+                                } else {
+                                    echo "No Resort Listed";
+                                }
+                                ?>
                             </ul>
-                            <div class="tab-content pt-2" id="myTabContent">
-                                <div class="tab-pane fade show active" id="home" role="tabpanel"
-                                    aria-labelledby="home-tab">
-                                    <!-- Line Chart -->
-                                    <div id="reportsChart"></div>
 
-                                    <script>
-                                    document.addEventListener("DOMContentLoaded", () => {
-                                        new ApexCharts(document.querySelector("#reportsChart"), {
-                                            series: [{
-                                                name: 'Sales',
-                                                data: [31, 40, 28, 51, 42, 82, 56],
-                                            }, {
-                                                name: 'Revenue',
-                                                data: [11, 32, 45, 32, 34, 52, 41]
-                                            }, {
-                                                name: 'Customers',
-                                                data: [15, 11, 32, 18, 9, 24, 11]
-                                            }],
-                                            chart: {
-                                                height: 350,
-                                                type: 'area',
-                                                toolbar: {
-                                                    show: false
-                                                },
-                                            },
-                                            markers: {
-                                                size: 4
-                                            },
-                                            colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                                            fill: {
-                                                type: "gradient",
-                                                gradient: {
-                                                    shadeIntensity: 1,
-                                                    opacityFrom: 0.3,
-                                                    opacityTo: 0.4,
-                                                    stops: [0, 90, 100]
-                                                }
-                                            },
-                                            dataLabels: {
-                                                enabled: false
-                                            },
-                                            stroke: {
-                                                curve: 'smooth',
-                                                width: 2
-                                            },
-                                            xaxis: {
-                                                type: 'datetime',
-                                                categories: ["2018-09-19T00:00:00.000Z",
-                                                    "2018-09-19T01:30:00.000Z",
-                                                    "2018-09-19T02:30:00.000Z",
-                                                    "2018-09-19T03:30:00.000Z",
-                                                    "2018-09-19T04:30:00.000Z",
-                                                    "2018-09-19T05:30:00.000Z",
-                                                    "2018-09-19T06:30:00.000Z"
-                                                ]
-                                            },
-                                            tooltip: {
-                                                x: {
-                                                    format: 'dd/MM/yy HH:mm'
-                                                },
-                                            }
-                                        }).render();
-                                    });
-                                    </script>
-                                    <!-- End Line Chart -->
-
+                            <!-- Container for the line chart -->
+                            <div id="chartContainer">
+                                <?php 
+                                $result->data_seek(0); // Reset result set pointer
+                                while($row = $result->fetch_assoc()){
+                                ?>
+                                <div class="tab-pane fade" id="<?= $row['name'];?>" role="tabpanel"
+                                    aria-labelledby="<?= $row['name'];?>-tab">
+                                    <div id="reportsChart-<?= $row['id']; ?>"></div>
                                 </div>
-                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                    <!-- Line Chart -->
-                                    <div id="reportsChart2"></div>
-
-                                    <script>
-                                    document.addEventListener("DOMContentLoaded", () => {
-                                        new ApexCharts(document.querySelector("#reportsChart2"), {
-                                            series: [{
-                                                name: 'Sales',
-                                                data: [31, 40, 28, 51, 42, 82, 56],
-                                            }, {
-                                                name: 'Revenue',
-                                                data: [11, 32, 45, 32, 34, 52, 41]
-                                            }, {
-                                                name: 'Customers',
-                                                data: [15, 11, 32, 18, 9, 24, 11]
-                                            }],
-                                            chart: {
-                                                height: 350,
-                                                type: 'area',
-                                                toolbar: {
-                                                    show: false
-                                                },
-                                            },
-                                            markers: {
-                                                size: 4
-                                            },
-                                            colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                                            fill: {
-                                                type: "gradient",
-                                                gradient: {
-                                                    shadeIntensity: 1,
-                                                    opacityFrom: 0.3,
-                                                    opacityTo: 0.4,
-                                                    stops: [0, 90, 100]
-                                                }
-                                            },
-                                            dataLabels: {
-                                                enabled: false
-                                            },
-                                            stroke: {
-                                                curve: 'smooth',
-                                                width: 2
-                                            },
-                                            xaxis: {
-                                                type: 'datetime',
-                                                categories: ["2018-09-19T00:00:00.000Z",
-                                                    "2018-09-19T01:30:00.000Z",
-                                                    "2018-09-19T02:30:00.000Z",
-                                                    "2018-09-19T03:30:00.000Z",
-                                                    "2018-09-19T04:30:00.000Z",
-                                                    "2018-09-19T05:30:00.000Z",
-                                                    "2018-09-19T06:30:00.000Z"
-                                                ]
-                                            },
-                                            tooltip: {
-                                                x: {
-                                                    format: 'dd/MM/yy HH:mm'
-                                                },
-                                            }
-                                        }).render();
-                                    });
-                                    </script>
-                                    <!-- End Line Chart -->
-                                </div>
-                                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                                    <!-- Line Chart -->
-                                    <div id="reportsChart3"></div>
-
-                                    <script>
-                                    document.addEventListener("DOMContentLoaded", () => {
-                                        new ApexCharts(document.querySelector("#reportsChart3"), {
-                                            series: [{
-                                                name: 'Sales',
-                                                data: [31, 40, 28, 51, 42, 82, 56],
-                                            }, {
-                                                name: 'Revenue',
-                                                data: [11, 32, 45, 32, 34, 52, 41]
-                                            }, {
-                                                name: 'Customers',
-                                                data: [15, 11, 32, 18, 9, 24, 11]
-                                            }],
-                                            chart: {
-                                                height: 350,
-                                                type: 'area',
-                                                toolbar: {
-                                                    show: false
-                                                },
-                                            },
-                                            markers: {
-                                                size: 4
-                                            },
-                                            colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                                            fill: {
-                                                type: "gradient",
-                                                gradient: {
-                                                    shadeIntensity: 1,
-                                                    opacityFrom: 0.3,
-                                                    opacityTo: 0.4,
-                                                    stops: [0, 90, 100]
-                                                }
-                                            },
-                                            dataLabels: {
-                                                enabled: false
-                                            },
-                                            stroke: {
-                                                curve: 'smooth',
-                                                width: 2
-                                            },
-                                            xaxis: {
-                                                type: 'datetime',
-                                                categories: ["2018-09-19T00:00:00.000Z",
-                                                    "2018-09-19T01:30:00.000Z",
-                                                    "2018-09-19T02:30:00.000Z",
-                                                    "2018-09-19T03:30:00.000Z",
-                                                    "2018-09-19T04:30:00.000Z",
-                                                    "2018-09-19T05:30:00.000Z",
-                                                    "2018-09-19T06:30:00.000Z"
-                                                ]
-                                            },
-                                            tooltip: {
-                                                x: {
-                                                    format: 'dd/MM/yy HH:mm'
-                                                },
-                                            }
-                                        }).render();
-                                    });
-                                    </script>
-                                    <!-- End Line Chart -->
-                                </div>
+                                <?php
+                                }
+                                ?>
                             </div>
                         </div>
-                    </div><!-- End Reports Card -->
+                    </div>
+
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        // Load data and render chart when a tab is clicked
+                        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+                            var resortId = e.target.getAttribute('data-bs-target').substring(1);
+                            var chartId = `#reportsChart-${resortId}`;
+
+                            $.ajax({
+                                url: 'get_chart_data.php', // The PHP script to fetch data
+                                type: 'POST',
+                                data: {
+                                    resort_id: resortId
+                                },
+                                success: function(response) {
+                                    var data = JSON.parse(response);
+
+                                    // Prepare data for ApexCharts
+                                    var dailyData = data.daily.map(item => ({
+                                        x: item.date,
+                                        y: item.count
+                                    }));
+                                    var weeklyData = data.weekly.map(item => ({
+                                        x: 'Week ' + item.week,
+                                        y: item.count
+                                    }));
+                                    var monthlyData = data.monthly.map(item => ({
+                                        x: 'Month ' + item.month,
+                                        y: item.count
+                                    }));
+
+                                    var options = {
+                                        series: [{
+                                            name: 'Daily Check-ins',
+                                            data: dailyData,
+                                        }, {
+                                            name: 'Weekly Check-ins',
+                                            data: weeklyData
+                                        }, {
+                                            name: 'Monthly Check-ins',
+                                            data: monthlyData
+                                        }],
+                                        chart: {
+                                            height: 350,
+                                            type: 'line',
+                                            toolbar: {
+                                                show: false
+                                            }
+                                        },
+                                        markers: {
+                                            size: 4
+                                        },
+                                        colors: ['#4154f1', '#2eca6a', '#ff771d'],
+                                        fill: {
+                                            type: "gradient",
+                                            gradient: {
+                                                shadeIntensity: 1,
+                                                opacityFrom: 0.3,
+                                                opacityTo: 0.4,
+                                                stops: [0, 90, 100]
+                                            }
+                                        },
+                                        dataLabels: {
+                                            enabled: false
+                                        },
+                                        stroke: {
+                                            curve: 'smooth',
+                                            width: 2
+                                        },
+                                        xaxis: {
+                                            type: 'category'
+                                        },
+                                        tooltip: {
+                                            x: {
+                                                format: 'dd/MM/yy'
+                                            }
+                                        }
+                                    };
+
+                                    new ApexCharts(document.querySelector(chartId), options)
+                                        .render();
+                                },
+                                error: function() {
+                                    alert('Error fetching data');
+                                }
+                            });
+                        });
+
+                        // Trigger the first tab's click to load initial data
+                        $('button[data-bs-toggle="tab"]').first().trigger('shown.bs.tab');
+                    });
+                    </script>
+
+
+
 
                     <!-- Recent Sales -->
                     <div class="col-12">
