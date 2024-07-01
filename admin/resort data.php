@@ -118,8 +118,11 @@ $(document).ready(function() {
                     var table = $('#resortTable').DataTable();
                     table.clear(); // Clear existing data
 
+                    var table_name = $('#card-title');
+
                     if (data.length > 0) {
                         $.each(data, function(index, item) {
+                            table_name.text(item.name);
                             table.row.add([
                                 index + 1,
                                 item.firstname + " " + item.lastname || '',

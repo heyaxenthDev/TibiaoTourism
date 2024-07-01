@@ -137,5 +137,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) 
     $stmt->close();
 }
 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['qr_code'])) {
+    
+    $qr_code = $conn->real_escape_string($_POST['qr_code']);
+    $query = "SELECT * FROM `guests` WHERE guest_code = '$qr_code'";
+    $result = $conn->query($query);
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        echo json_encode([
+            'success' => true,
+            'guest_code'=>$row['guest_code'],
+            'id' => $row['id'],
+            'firstname' => $row['firstname'],
+            'lastname' => $row['lastname'],
+            'age' => $row['age'],
+            'email' => ($row['email'] == null ? "Not Applicable" : $row['email']),
+            'phone' => ($row['phone'] == null ? "Not Applicable" : $row['phone']),
+            'destination' => $row['destination'],
+            'type_of_stay' => $row['type_of_stay'],
+            'arrival_date_time' => ($row['arrival_date_time'] == null ? "Not yet Checked In" : $row['arrival_date_time'])
+        ]);
+    } else {
+        echo json_encode(['success' => false]);
+    }
+
+}
+
 $conn->close();
 ?>
