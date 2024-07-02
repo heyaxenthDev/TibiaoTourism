@@ -121,25 +121,28 @@ $(document).ready(function() {
                     var table_name = $('#card-title');
 
                     if (data.length > 0) {
+                        // Set the card title to the resort name
+                        table_name.text(data[0].name);
+
                         $.each(data, function(index, item) {
-                            table_name.text(item.name);
                             table.row.add([
                                 index + 1,
                                 item.firstname + " " + item.lastname || '',
-                                item.arrival_date_time || 'N/A',
+                                item.formatted_arrival_time || 'N/A',
                                 item.email || 'No email',
                                 item.phone || '',
                                 item.destination || '',
                             ]).draw(false);
                         });
                     } else {
+                        table_name.text('No data available');
                         table.row.add([
                             '', 'No data available', '', '', '', '', ''
                         ]).draw(false);
                     }
                 },
-                error: function() {
-                    alert('Error fetching data');
+                error: function(xhr, status, error) {
+                    alert('Error fetching data: ' + xhr.responseText);
                 }
             });
         }

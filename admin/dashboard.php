@@ -91,7 +91,7 @@ Toast.fire({
                                 ?>
                                 <div class="tab-pane fade" id="<?= $row['name'];?>" role="tabpanel"
                                     aria-labelledby="<?= $row['name'];?>-tab">
-                                    <div id="reportsChart-<?= $row['id']; ?>"></div>
+                                    <div id="reportsChart-<?= $row['name']; ?>"></div>
                                 </div>
                                 <?php
                                 }
@@ -101,10 +101,9 @@ Toast.fire({
                     </div>
 
                     <script>
-                    document.addEventListener("DOMContentLoaded", function() {
-                        // Load data and render chart when a tab is clicked
-                        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
-                            var resortId = e.target.getAttribute('data-bs-target').substring(1);
+                    $(document).ready(function() {
+                        // Function to load chart data for a given resort ID
+                        function loadChartData(resortId) {
                             var chartId = `#reportsChart-${resortId}`;
 
                             $.ajax({
@@ -178,6 +177,7 @@ Toast.fire({
                                         }
                                     };
 
+                                    // Render ApexCharts for the specified chartId
                                     new ApexCharts(document.querySelector(chartId), options)
                                         .render();
                                 },
@@ -185,17 +185,20 @@ Toast.fire({
                                     alert('Error fetching data');
                                 }
                             });
-                        });
+                        }
 
-                        // Trigger the first tab's click to load initial data
-                        $('button[data-bs-toggle="tab"]').first().trigger('shown.bs.tab');
+                        // Loop through each tab button to load respective chart data
+                        $('button[data-bs-toggle="tab"]').each(function() {
+                            var resortId = $(this).attr('data-bs-target').substring(1);
+                            loadChartData(resortId);
+                        });
                     });
                     </script>
 
 
 
 
-                    <!-- Recent Sales -->
+                    <!-- Recent Check-ins -->
                     <div class="col-12">
                         <div class="card recent-sales overflow-auto">
 
@@ -213,7 +216,7 @@ Toast.fire({
                             </div>
 
                             <div class="card-body">
-                                <h5 class="card-title">Recent Sales <span>| Today</span></h5>
+                                <h5 class="card-title">Recent Check-ins <span>| Today</span></h5>
 
                                 <table class="table table-borderless datatable">
                                     <thead>
@@ -268,7 +271,7 @@ Toast.fire({
                             </div>
 
                         </div>
-                    </div><!-- End Recent Sales -->
+                    </div><!-- End Recent Check-ins -->
 
                 </div>
             </div><!-- End Left side columns -->
