@@ -74,7 +74,10 @@ session_start();
                                     </div>
 
                                     <script>
-                                    document.getElementById('qrInput').addEventListener('input', function() {
+                                    document.getElementById('qrInput').addEventListener('input', function(event) {
+                                        // Prevent the form from submitting
+                                        event.preventDefault();
+
                                         // Check if the input field is not empty
                                         if (this.value.trim() !== '') {
                                             const formData = new FormData(document.getElementById('qrForm'));
@@ -118,22 +121,46 @@ session_start();
                                                                             Swal.fire(
                                                                                 'Confirmed!',
                                                                                 'Guest arrival time has been updated.',
-                                                                                'success');
+                                                                                'success'
+                                                                            );
                                                                         } else {
                                                                             Swal.fire('Error!',
                                                                                 'Could not update arrival time.',
                                                                                 'error');
                                                                         }
+                                                                        // Clear the input field
+                                                                        document.getElementById(
+                                                                                'qrInput')
+                                                                            .value = '';
                                                                     });
+                                                            } else {
+                                                                // Clear the input field if the confirmation dialog is canceled
+                                                                document.getElementById('qrInput')
+                                                                    .value = '';
                                                             }
                                                         });
                                                     } else {
                                                         Swal.fire('Error!', 'Guest not found.', 'error');
+                                                        // Clear the input field
+                                                        document.getElementById('qrInput').value = '';
                                                     }
+                                                })
+                                                .catch(error => {
+                                                    console.error('Error:', error);
+                                                    Swal.fire('Error!', 'An error occurred.', 'error');
+                                                    // Clear the input field
+                                                    document.getElementById('qrInput').value = '';
                                                 });
                                         }
                                     });
+
+                                    document.getElementById('qrForm').addEventListener('submit', function(event) {
+                                        // Prevent the default form submission
+                                        event.preventDefault();
+                                    });
                                     </script>
+
+
 
                                 </div>
                             </div>
