@@ -46,7 +46,7 @@ include "includes/conn.php";
 
             <nav id="navmenu" class="navmenu">
                 <ul>
-
+                    <li><a href="scanner"><i class="bi bi-qr-code-scan"></i></a></li>
                 </ul>
             </nav>
 

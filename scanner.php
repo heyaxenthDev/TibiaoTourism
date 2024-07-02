@@ -56,7 +56,7 @@ session_start();
                         <div class="col-lg-4 col-md-6 d-flex flex-column align-items center justify-content-center">
 
                             <div class="card mb-3 p-4">
-                                <h1 class="card-title text-center">Tibiao Tourism Scanner</h1>
+                                <a href="index" class="card-title text-center">Tibiao Tourism Scanner</a>
                                 <p class="text-center">Scanner is currently active.</p>
                                 <div class="card-body" id="htmlContent">
                                     <div class="d-flex justify-content-center">
