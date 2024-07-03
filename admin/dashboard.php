@@ -101,97 +101,59 @@ Toast.fire({
                     </div>
 
                     <script>
-                    $(document).ready(function() {
-                        // Function to load chart data for a given resort ID
-                        function loadChartData(resortId) {
-                            var chartId = `#reportsChart-${resortId}`;
-
-                            $.ajax({
-                                url: 'get_chart_data.php', // The PHP script to fetch data
-                                type: 'POST',
-                                data: {
-                                    resort_id: resortId
+                    document.addEventListener("DOMContentLoaded", () => {
+                        new ApexCharts(document.querySelector("#reportsChart"), {
+                            series: [{
+                                name: 'Sales',
+                                data: [31, 40, 28, 51, 42, 82, 56],
+                            }, {
+                                name: 'Revenue',
+                                data: [11, 32, 45, 32, 34, 52, 41]
+                            }, {
+                                name: 'Customers',
+                                data: [15, 11, 32, 18, 9, 24, 11]
+                            }],
+                            chart: {
+                                height: 350,
+                                type: 'area',
+                                toolbar: {
+                                    show: false
                                 },
-                                success: function(response) {
-                                    var data = JSON.parse(response);
-
-                                    // Prepare data for ApexCharts
-                                    var dailyData = data.daily.map(item => ({
-                                        x: item.date,
-                                        y: item.count
-                                    }));
-                                    var weeklyData = data.weekly.map(item => ({
-                                        x: 'Week ' + item.week,
-                                        y: item.count
-                                    }));
-                                    var monthlyData = data.monthly.map(item => ({
-                                        x: 'Month ' + item.month,
-                                        y: item.count
-                                    }));
-
-                                    var options = {
-                                        series: [{
-                                            name: 'Daily Check-ins',
-                                            data: dailyData,
-                                        }, {
-                                            name: 'Weekly Check-ins',
-                                            data: weeklyData
-                                        }, {
-                                            name: 'Monthly Check-ins',
-                                            data: monthlyData
-                                        }],
-                                        chart: {
-                                            height: 350,
-                                            type: 'line',
-                                            toolbar: {
-                                                show: false
-                                            }
-                                        },
-                                        markers: {
-                                            size: 4
-                                        },
-                                        colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                                        fill: {
-                                            type: "gradient",
-                                            gradient: {
-                                                shadeIntensity: 1,
-                                                opacityFrom: 0.3,
-                                                opacityTo: 0.4,
-                                                stops: [0, 90, 100]
-                                            }
-                                        },
-                                        dataLabels: {
-                                            enabled: false
-                                        },
-                                        stroke: {
-                                            curve: 'smooth',
-                                            width: 2
-                                        },
-                                        xaxis: {
-                                            type: 'category'
-                                        },
-                                        tooltip: {
-                                            x: {
-                                                format: 'dd/MM/yy'
-                                            }
-                                        }
-                                    };
-
-                                    // Render ApexCharts for the specified chartId
-                                    new ApexCharts(document.querySelector(chartId), options)
-                                        .render();
-                                },
-                                error: function() {
-                                    alert('Error fetching data');
+                            },
+                            markers: {
+                                size: 4
+                            },
+                            colors: ['#4154f1', '#2eca6a', '#ff771d'],
+                            fill: {
+                                type: "gradient",
+                                gradient: {
+                                    shadeIntensity: 1,
+                                    opacityFrom: 0.3,
+                                    opacityTo: 0.4,
+                                    stops: [0, 90, 100]
                                 }
-                            });
-                        }
-
-                        // Loop through each tab button to load respective chart data
-                        $('button[data-bs-toggle="tab"]').each(function() {
-                            var resortId = $(this).attr('data-bs-target').substring(1);
-                            loadChartData(resortId);
-                        });
+                            },
+                            dataLabels: {
+                                enabled: false
+                            },
+                            stroke: {
+                                curve: 'smooth',
+                                width: 2
+                            },
+                            xaxis: {
+                                type: 'datetime',
+                                categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z",
+                                    "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z",
+                                    "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z",
+                                    "2018-09-19T06:30:00.000Z"
+                                ]
+                            },
+                            tooltip: {
+                                x: {
+                                    format: 'dd/MM/yy HH:mm'
+                                },
+                            }
+                        }).render();
                     });
                     </script>
 
@@ -218,54 +180,46 @@ Toast.fire({
                             <div class="card-body">
                                 <h5 class="card-title">Recent Check-ins <span>| Today</span></h5>
 
+
                                 <table class="table table-borderless datatable">
                                     <thead>
                                         <tr>
                                             <th scope="col">#</th>
-                                            <th scope="col">Customer</th>
-                                            <th scope="col">Product</th>
-                                            <th scope="col">Price</th>
-                                            <th scope="col">Status</th>
+                                            <th scope="col">Guest Name</th>
+                                            <th scope="col">Destination</th>
+                                            <th scope="col">Type of Stay</th>
+                                            <th scope="col">Arrival Date & Time</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <th scope="row"><a href="#">#2457</a></th>
-                                            <td>Brandon Jacob</td>
-                                            <td><a href="#" class="text-primary">At praesentium minu</a></td>
-                                            <td>$64</td>
-                                            <td><span class="badge bg-success">Approved</span></td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><a href="#">#2147</a></th>
-                                            <td>Bridie Kessler</td>
-                                            <td><a href="#" class="text-primary">Blanditiis dolor omnis similique</a>
-                                            </td>
-                                            <td>$47</td>
-                                            <td><span class="badge bg-warning">Pending</span></td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><a href="#">#2049</a></th>
-                                            <td>Ashleigh Langosh</td>
-                                            <td><a href="#" class="text-primary">At recusandae consectetur</a></td>
-                                            <td>$147</td>
-                                            <td><span class="badge bg-success">Approved</span></td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><a href="#">#2644</a></th>
-                                            <td>Angus Grady</td>
-                                            <td><a href="#" class="text-primar">Ut voluptatem id earum et</a></td>
-                                            <td>$67</td>
-                                            <td><span class="badge bg-danger">Rejected</span></td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><a href="#">#2644</a></th>
-                                            <td>Raheem Lehner</td>
-                                            <td><a href="#" class="text-primary">Sunt similique distinctio</a></td>
-                                            <td>$165</td>
-                                            <td><span class="badge bg-success">Approved</span></td>
-                                        </tr>
+                                        <?php
+                                        // Get today's date
+                                        $current_date = date('Y-m-d');
+
+                                        // Fetch recent check-ins
+                                        $sql = "SELECT * FROM `guests` WHERE DATE(`date_created`) = DATE(NOW()) AND `arrival_date_time` IS NOT NULL";
+                                        $result = $conn->query($sql);
+
+                                        if ($result->num_rows > 0) {
+                                            // Initialize counter
+                                            $counter = 1;
+
+                                            // Output data of each row
+                                            while ($row = $result->fetch_assoc()) {
+                                                echo "<tr>
+                                                        <th scope='row'>" . $counter++ . "</th>
+                                                        <td>" . htmlspecialchars($row['firstname']) . " " . htmlspecialchars($row['lastname']) . "</td>
+                                                        <td>" . htmlspecialchars($row['destination']) . "</td>"
+                                                        . ($row['type_of_stay'] == "Over Night Stay" ? "<td><span class='badge bg-success'>" . htmlspecialchars($row['type_of_stay']) . "</span></td>" : "<td><span class='badge bg-warning'>" . htmlspecialchars($row['type_of_stay']) . "</span></td>")
+                                                        . "<td>" . htmlspecialchars($row['arrival_date_time']) . "</td>
+                                                    </tr>";
+                                            }
+                                        } else {
+                                            echo "<tr><td colspan='6'>No recent check-ins</td></tr>";
+                                        }
+                                        ?>
                                     </tbody>
+
                                 </table>
 
                             </div>
@@ -279,7 +233,7 @@ Toast.fire({
             <!-- Right side columns -->
             <div class="col-lg-4">
 
-                <!-- Recent Activity -->
+                <!-- Guest Count Chart -->
                 <div class="card">
                     <div class="filter">
                         <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -287,81 +241,6 @@ Toast.fire({
                             <li class="dropdown-header text-start">
                                 <h6>Filter</h6>
                             </li>
-
-                            <li><a class="dropdown-item" href="#">Today</a></li>
-                            <li><a class="dropdown-item" href="#">This Month</a></li>
-                            <li><a class="dropdown-item" href="#">This Year</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="card-body">
-                        <h5 class="card-title">Recent Activity <span>| Today</span></h5>
-
-                        <div class="activity">
-
-                            <div class="activity-item d-flex">
-                                <div class="activite-label">32 min</div>
-                                <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                                <div class="activity-content">
-                                    Quia quae rerum <a href="#" class="fw-bold text-dark">explicabo officiis</a> beatae
-                                </div>
-                            </div><!-- End activity item-->
-
-                            <div class="activity-item d-flex">
-                                <div class="activite-label">56 min</div>
-                                <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                                <div class="activity-content">
-                                    Voluptatem blanditiis blanditiis eveniet
-                                </div>
-                            </div><!-- End activity item-->
-
-                            <div class="activity-item d-flex">
-                                <div class="activite-label">2 hrs</div>
-                                <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                                <div class="activity-content">
-                                    Voluptates corrupti molestias voluptatem
-                                </div>
-                            </div><!-- End activity item-->
-
-                            <div class="activity-item d-flex">
-                                <div class="activite-label">1 day</div>
-                                <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                                <div class="activity-content">
-                                    Tempore autem saepe <a href="#" class="fw-bold text-dark">occaecati voluptatem</a>
-                                    tempore
-                                </div>
-                            </div><!-- End activity item-->
-
-                            <div class="activity-item d-flex">
-                                <div class="activite-label">2 days</div>
-                                <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                                <div class="activity-content">
-                                    Est sit eum reiciendis exercitationem
-                                </div>
-                            </div><!-- End activity item-->
-
-                            <div class="activity-item d-flex">
-                                <div class="activite-label">4 weeks</div>
-                                <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                                <div class="activity-content">
-                                    Dicta dolorem harum nulla eius. Ut quidem quidem sit quas
-                                </div>
-                            </div><!-- End activity item-->
-
-                        </div>
-
-                    </div>
-                </div><!-- End Recent Activity -->
-
-                <!-- Website Traffic -->
-                <div class="card">
-                    <div class="filter">
-                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <li class="dropdown-header text-start">
-                                <h6>Filter</h6>
-                            </li>
-
                             <li><a class="dropdown-item" href="#">Today</a></li>
                             <li><a class="dropdown-item" href="#">This Month</a></li>
                             <li><a class="dropdown-item" href="#">This Year</a></li>
@@ -369,67 +248,70 @@ Toast.fire({
                     </div>
 
                     <div class="card-body pb-0">
-                        <h5 class="card-title">Website Traffic <span>| Today</span></h5>
+                        <h5 class="card-title">Guest Count Chart <span>| Today</span></h5>
 
                         <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
 
                         <script>
                         document.addEventListener("DOMContentLoaded", () => {
-                            echarts.init(document.querySelector("#trafficChart")).setOption({
-                                tooltip: {
-                                    trigger: 'item'
-                                },
-                                legend: {
-                                    top: '5%',
-                                    left: 'center'
-                                },
-                                series: [{
-                                    name: 'Access From',
-                                    type: 'pie',
-                                    radius: ['40%', '70%'],
-                                    avoidLabelOverlap: false,
-                                    label: {
-                                        show: false,
-                                        position: 'center'
-                                    },
-                                    emphasis: {
-                                        label: {
-                                            show: true,
-                                            fontSize: '18',
-                                            fontWeight: 'bold'
-                                        }
-                                    },
-                                    labelLine: {
-                                        show: false
-                                    },
-                                    data: [{
-                                            value: 1048,
-                                            name: 'Search Engine'
+                            // Fetch data from PHP
+                            fetch('fetch_guest_data.php')
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Prepare data for chart
+                                    const chartData = data.map(item => ({
+                                        value: item.guest_count,
+                                        name: item.destination
+                                    }));
+
+                                    // Initialize ECharts instance
+                                    const chart = echarts.init(document.querySelector("#trafficChart"));
+
+                                    // Set options for pie chart
+                                    const options = {
+                                        tooltip: {
+                                            trigger: 'item'
                                         },
-                                        {
-                                            value: 735,
-                                            name: 'Direct'
+                                        legend: {
+                                            top: '5%',
+                                            left: 'center'
                                         },
-                                        {
-                                            value: 580,
-                                            name: 'Email'
-                                        },
-                                        {
-                                            value: 484,
-                                            name: 'Union Ads'
-                                        },
-                                        {
-                                            value: 300,
-                                            name: 'Video Ads'
-                                        }
-                                    ]
-                                }]
-                            });
+                                        series: [{
+                                            name: 'Access From',
+                                            type: 'pie',
+                                            radius: ['40%', '70%'],
+                                            avoidLabelOverlap: false,
+                                            label: {
+                                                show: false,
+                                                position: 'center'
+                                            },
+                                            emphasis: {
+                                                label: {
+                                                    show: true,
+                                                    fontSize: '18',
+                                                    fontWeight: 'bold'
+                                                }
+                                            },
+                                            labelLine: {
+                                                show: false
+                                            },
+                                            data: chartData
+                                        }]
+                                    };
+
+                                    // Set options and render chart
+                                    chart.setOption(options);
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching data:', error);
+                                });
                         });
                         </script>
 
                     </div>
-                </div><!-- End Website Traffic -->
+                </div><!-- End Guest Count Chart -->
+
+
 
             </div><!-- End Right side columns -->
 
