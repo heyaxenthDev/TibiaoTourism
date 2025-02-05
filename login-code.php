@@ -98,8 +98,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) 
     $age = $conn->real_escape_string($_POST['age']);
     $contactPreference = $conn->real_escape_string($_POST['contact_preference']);
     $contact = $conn->real_escape_string($_POST['contact']);
-    $destination = $conn->real_escape_string($_POST['destination']);
     $stayType = $conn->real_escape_string($_POST['stay_type']);
+    $destinationType = $_POST['destination_type']; // single or multiple
+
+    // Check for multiple destinations
+    if ($destinationType == "multiple" && isset($_POST['destinations'])) {
+        $destinations = $_POST['destinations']; // Array of destinations
+    } else {
+        $destinations = [$_POST['destination']]; // Single destination as array
+    }
 
     $emptyString = null;
 
@@ -107,17 +114,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) 
     $randomNumbers = rand(10000, 99999);
     $guestCode = 'guest-' . $randomNumbers;
 
-    // Insert data into database
-    $stmt = $conn->prepare("INSERT INTO `guests` (`guest_code`, `firstname`, `lastname`, `age`, `email`, `phone`, `destination`, `type_of_stay`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-    // Bind parameters
+    // Insert guest into `guests` table
+    $stmt = $conn->prepare("INSERT INTO `guests` (`guest_code`, `firstname`, `lastname`, `age`, `email`, `phone`, `type_of_stay`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    
     if ($contactPreference == 'email') {
-        $stmt->bind_param("ssssssss", $guestCode, $firstName, $lastName, $age, $contact, $emptyString, $destination, $stayType);
+        $stmt->bind_param("sssssss", $guestCode, $firstName, $lastName, $age, $contact, $emptyString, $stayType);
     } else {
-        $stmt->bind_param("ssssssss", $guestCode, $firstName, $lastName, $age, $emptyString, $contact, $destination, $stayType);
+        $stmt->bind_param("sssssss", $guestCode, $firstName, $lastName, $age, $emptyString, $contact, $stayType);
     }
 
     if ($stmt->execute()) {
+        
+        // Insert destinations into `guest_destinations` table
+        $stmtDestination = $conn->prepare("INSERT INTO `guest_destinations` (`guest_code`, `destination`) VALUES (?, ?)");
+
+        foreach ($destinations as $destination) {
+            $cleanDestination = $conn->real_escape_string($destination);
+            $stmtDestination->bind_param("ss", $guestCode, $cleanDestination);
+            $stmtDestination->execute();
+        }
+
+        // Close destination statement
+        $stmtDestination->close();
+
+        // Set success message and redirect
         $_SESSION['status'] = "Success";
         $_SESSION['status_text'] = "New guest registered successfully!";
         $_SESSION['status_code'] = "success";
@@ -128,15 +148,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) 
         $_SESSION['status'] = "Error";
         $_SESSION['status_text'] = "Error: " . $stmt->error;
         $_SESSION['status_code'] = "error";
-        $_SESSION['status_btn'] = "ok";
+        $_SESSION['status_btn'] = "OK";
         header("Location: {$_SERVER['HTTP_REFERER']}");
         exit;
     }
 
-    // Close connection
+    // Close connections
     $stmt->close();
 }
 
+
+function addNotification($conn, $description, $status) {
+    $stmt = $conn->prepare("INSERT INTO `notifications` (`description`, `status`) VALUES (?, ?)");
+    $stmt->bind_param("ss", $description, $status);
+    $stmt->execute();
+    $stmt->close();
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['qr_code'])) {
     $qr_code = $conn->real_escape_string($_POST['qr_code']);
@@ -145,6 +172,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['qr_code'])) {
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
+
+        // Check if guest has multiple destinations
+        $destinations = [];
+        $destinationQuery = "SELECT destination FROM `guest_destinations` WHERE guest_code = '{$row['guest_code']}'";
+        $destinationResult = $conn->query($destinationQuery);
+
+        if ($destinationResult->num_rows > 0) {
+            while ($destinationRow = $destinationResult->fetch_assoc()) {
+                $destinations[] = $destinationRow['destination'];
+            }
+        }
+
+        // Add notification
+        $description = "Guest with code " . $row['guest_code'] . " has confirmed their arrival.";
+        $status = "unread"; // Or any status you want to set
+        addNotification($conn, $description, $status);
+
         echo json_encode([
             'success' => true,
             'guest_code' => $row['guest_code'],
@@ -154,7 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['qr_code'])) {
             'age' => $row['age'],
             'email' => $row['email'] ?? "Not Applicable",
             'phone' => $row['phone'] ?? "Not Applicable",
-            'destination' => $row['destination'],
+            'destination' => $destinations, // Now an array
             'type_of_stay' => $row['type_of_stay'],
             'arrival_date_time' => $row['arrival_date_time'] ?? "Not yet Checked In"
         ]);
@@ -162,7 +206,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['qr_code'])) {
         echo json_encode(['success' => false]);
     }
 }
-
 
 $conn->close();
 ?>

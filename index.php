@@ -84,11 +84,8 @@ include "includes/conn.php";
 
         <!-- About Section -->
         <section id="register" class="register section">
-
             <div class="container">
-
                 <div class="row gy-4">
-
                     <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
                         <p class="who-we-are">Be Our Guest</p>
                         <h3>Start Your Registration Here</h3>
@@ -116,48 +113,76 @@ include "includes/conn.php";
                                     <label for="floatingAge">Age</label>
                                 </div>
                             </div>
+
                             <div class="col-md-12">
                                 <div class="form-floating">
                                     <select class="form-select form-select-sm" id="contactPreference"
-                                        name="contact_preference" aria-label="Contact Preference" required>
+                                        name="contact_preference" required>
+                                        <option selected disabled value="">Select Contact Preference</option>
                                         <option value="email">Email</option>
                                         <option value="phone">Phone</option>
                                     </select>
                                     <label for="contactPreference">Contact Preference</label>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-12" id="contactInputDiv" style="display: none;">
                                 <div class="form-floating">
                                     <input type="text" class="form-control form-control-sm" id="floatingContact"
-                                        name="contact" placeholder="Phone/Email" required>
-                                    <label for="floatingContact" id="contactLabel">Phone/Email</label>
+                                        name="contact" placeholder="" required>
+                                    <label for="floatingContact" id="contactLabel">Contact</label>
                                 </div>
                             </div>
+
                             <div class="col-md-12">
+                                <label class="form-label">Destination Selection</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="destination_type"
+                                        id="singleDestination" value="single" checked>
+                                    <label class="form-check-label" for="singleDestination">Single Destination</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="destination_type"
+                                        id="multipleDestinations" value="multiple">
+                                    <label class="form-check-label" for="multipleDestinations">Multiple
+                                        Destinations</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12" id="singleDestinationDiv">
                                 <div class="form-floating">
                                     <select class="form-select form-select-sm" id="floatingDestination"
-                                        name="destination" aria-label="Destination" required>
+                                        name="destination" required>
                                         <option selected disabled value="">Select Destination</option>
                                         <?php
-
-                                        // Fetch destinations from the database
-                                        $sql = "SELECT name FROM resorts";
-                                        $result = $conn->query($sql);
-
-                                        if ($result->num_rows > 0) {
-                                            while ($row = $result->fetch_assoc()) {
-                                                echo "<option value='" . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . "</option>";
-                                            }
-                                        }
-
-                                        // Close connection
-                                        // $conn->close();
-                                        ?>
+                                $sql = "SELECT name FROM resorts";
+                                $result = $conn->query($sql);
+                                if ($result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
+                                        echo "<option value='" . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . "</option>";
+                                    }
+                                }
+                                ?>
                                     </select>
                                     <label for="floatingDestination">Destination</label>
                                 </div>
                             </div>
-
+                            <div class="col-md-12" id="multipleDestinationsDiv" style="display: none;">
+                                <label class="form-label">Select Multiple Destinations</label>
+                                <div class="form-check">
+                                    <?php
+                            $sql = "SELECT name FROM resorts";
+                            $result = $conn->query($sql);
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    $destinationName = htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8');
+                                    echo "<div class='form-check'>";
+                                    echo "<input class='form-check-input' type='checkbox' name='destinations[]' value='$destinationName' id='$destinationName'>";
+                                    echo "<label class='form-check-label' for='$destinationName'>$destinationName</label>";
+                                    echo "</div>";
+                                }
+                            }
+                            ?>
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <label class="form-label">Stay Type</label>
                                 <div class="form-check">
@@ -174,50 +199,53 @@ include "includes/conn.php";
                             <div class="col-12">
                                 <button type="submit" class="btn read-more" name="GuestRegistration">Register</button>
                             </div>
-                        </form><!-- End Guest Registration Form -->
+                        </form>
 
                         <script>
-                        // JavaScript to dynamically update the placeholder and label text for the contact input
                         document.getElementById('contactPreference').addEventListener('change', function() {
+                            var contactInputDiv = document.getElementById('contactInputDiv');
                             var contactInput = document.getElementById('floatingContact');
                             var contactLabel = document.getElementById('contactLabel');
-                            if (this.value === 'phone') {
-                                contactInput.placeholder = 'Phone';
-                                contactLabel.textContent = 'Phone';
+
+                            if (this.value) {
+                                contactInputDiv.style.display = 'block';
+                                contactInput.placeholder = this.value === 'phone' ? 'Phone' : 'Email';
+                                contactLabel.textContent = this.value === 'phone' ? 'Phone' : 'Email';
                             } else {
-                                contactInput.placeholder = 'Email';
-                                contactLabel.textContent = 'Email';
+                                contactInputDiv.style.display = 'none';
                             }
                         });
+                        document.querySelectorAll("input[name='destination_type']").forEach(radio => {
+                            radio.addEventListener('change', function() {
+                                var singleDestinationDiv = document.getElementById(
+                                    'singleDestinationDiv');
+                                var multipleDestinationsDiv = document.getElementById(
+                                    'multipleDestinationsDiv');
+                                var singleDestinationSelect = document.getElementById(
+                                    'floatingDestination');
+                                var checkboxes = document.querySelectorAll(
+                                    "input[name='destinations[]']");
+
+                                if (this.value === 'single') {
+                                    singleDestinationDiv.style.display = 'block';
+                                    multipleDestinationsDiv.style.display = 'none';
+                                    singleDestinationSelect.required = true;
+                                    checkboxes.forEach(checkbox => checkbox.required = false);
+                                } else {
+                                    singleDestinationDiv.style.display = 'none';
+                                    multipleDestinationsDiv.style.display = 'block';
+                                    singleDestinationSelect.required = false;
+                                    checkboxes.forEach(checkbox => checkbox.required = false);
+                                }
+                            });
+                        });
                         </script>
-
-
-
                     </div>
-
-                    <div class="col-lg-6 register-images mt-5 pt-5" data-aos="fade-up" data-aos-delay="200">
-                        <div class="row gy-4">
-                            <div class="col-lg-6">
-                                <img src="assets/img/featured00.jpg" class="img-fluid" alt="">
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="row gy-4">
-                                    <div class="col-lg-12">
-                                        <img src="assets/img/tibiao2.webp" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <img src="assets/img/tibiao9.webp" class="img-fluid" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
                 </div>
-
             </div>
         </section><!-- /About Section -->
+
+
 
     </main>
 

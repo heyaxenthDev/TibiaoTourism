@@ -58,105 +58,117 @@ Toast.fire({
 
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Reports</h5>
-                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <h5 class="card-title">Guest Check-ins</h5>
+
+                            <!-- Resort Selection Dropdown -->
+                            <select id="resortSelect" class="form-select">
+                                <option value="">Select a Resort</option>
                                 <?php 
-                                $sql = "SELECT id, name FROM resorts";
+                                // Fetch resorts and guest check-ins in one go
+                                $sql = "SELECT r.id, r.name, 
+                                            DATE(g.arrival_date_time) AS date, 
+                                            COUNT(g.id) AS guest_count
+                                        FROM resorts r
+                                        LEFT JOIN guest_destinations gd ON r.name = gd.destination
+                                        LEFT JOIN guests g ON g.guest_code = gd.guest_code
+                                        GROUP BY r.id, r.name, DATE(g.arrival_date_time)
+                                        ORDER BY r.name, g.arrival_date_time";
+
                                 $result = $conn->query($sql);
+                                $resortData = [];
 
                                 if ($result->num_rows > 0) {
-                                    $active = 'active'; // To set the first tab as active
-                                    while($row = $result->fetch_assoc()){
-                                ?>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link <?= $active; ?>" id="<?= $row['name'];?>-tab"
-                                        data-bs-toggle="tab" data-bs-target="#<?= $row['name'];?>" type="button"
-                                        role="tab" aria-controls="<?= $row['name'];?>"
-                                        aria-selected="true"><?= $row['name'];?></button>
-                                </li>
-                                <?php
-                                        $active = ''; // Reset active for subsequent tabs
+                                    while ($row = $result->fetch_assoc()) {
+                                        $resortName = htmlspecialchars($row['name']);
+                                        $resortId = preg_replace('/[^a-zA-Z0-9_-]/', '', trim($row['name']));
+                                        
+                                        if (!isset($resortData[$resortId])) {
+                                            $resortData[$resortId] = [
+                                                "name" => $resortName,
+                                                "dates" => [],
+                                                "guest_counts" => []
+                                            ];
+                                            echo "<option value='$resortId'>$resortName</option>";
+                                        }
+
+                                        if (!empty($row['date'])) {
+                                            $resortData[$resortId]["dates"][] = $row['date'];
+                                            $resortData[$resortId]["guest_counts"][] = (int)$row['guest_count'];
+                                        }
                                     }
                                 } else {
-                                    echo "No Resort Listed";
+                                    echo "<option value=''>No Resort Listed</option>";
                                 }
                                 ?>
-                            </ul>
+                            </select>
 
-                            <!-- Container for the line chart -->
+                            <!-- Chart Container -->
                             <div id="chartContainer">
-                                <?php 
-                                $result->data_seek(0); // Reset result set pointer
-                                while($row = $result->fetch_assoc()){
-                                ?>
-                                <div class="tab-pane fade" id="<?= $row['name'];?>" role="tabpanel"
-                                    aria-labelledby="<?= $row['name'];?>-tab">
-                                    <div id="reportsChart-<?= $row['name']; ?>"></div>
+                                <?php foreach ($resortData as $resortId => $data) { ?>
+                                <div class="chart-wrapper" id="chart-<?= $resortId ?>" style="display: none;">
+                                    <div id="guestsChart-<?= $resortId ?>"></div>
+                                    <script>
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                        new ApexCharts(document.querySelector(
+                                            "#guestsChart-<?= $resortId ?>"), {
+                                            series: [{
+                                                name: 'Guests Checked In',
+                                                data: <?= json_encode($data['guest_counts']); ?>,
+                                            }],
+                                            chart: {
+                                                height: 350,
+                                                type: 'line',
+                                                toolbar: {
+                                                    show: false
+                                                },
+                                            },
+                                            markers: {
+                                                size: 4
+                                            },
+                                            colors: ['#4154f1'],
+                                            fill: {
+                                                type: "solid"
+                                            },
+                                            dataLabels: {
+                                                enabled: false
+                                            },
+                                            stroke: {
+                                                curve: 'smooth',
+                                                width: 2
+                                            },
+                                            xaxis: {
+                                                type: 'category',
+                                                categories: <?= json_encode($data['dates']); ?>
+                                            },
+                                            tooltip: {
+                                                x: {
+                                                    format: 'dd/MM/yy'
+                                                }
+                                            }
+                                        }).render();
+                                    });
+                                    </script>
                                 </div>
-                                <?php
-                                }
-                                ?>
+                                <?php } ?>
                             </div>
                         </div>
                     </div>
 
                     <script>
                     document.addEventListener("DOMContentLoaded", () => {
-                        new ApexCharts(document.querySelector("#reportsChart"), {
-                            series: [{
-                                name: 'Sales',
-                                data: [31, 40, 28, 51, 42, 82, 56],
-                            }, {
-                                name: 'Revenue',
-                                data: [11, 32, 45, 32, 34, 52, 41]
-                            }, {
-                                name: 'Customers',
-                                data: [15, 11, 32, 18, 9, 24, 11]
-                            }],
-                            chart: {
-                                height: 350,
-                                type: 'area',
-                                toolbar: {
-                                    show: false
-                                },
-                            },
-                            markers: {
-                                size: 4
-                            },
-                            colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                            fill: {
-                                type: "gradient",
-                                gradient: {
-                                    shadeIntensity: 1,
-                                    opacityFrom: 0.3,
-                                    opacityTo: 0.4,
-                                    stops: [0, 90, 100]
-                                }
-                            },
-                            dataLabels: {
-                                enabled: false
-                            },
-                            stroke: {
-                                curve: 'smooth',
-                                width: 2
-                            },
-                            xaxis: {
-                                type: 'datetime',
-                                categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z",
-                                    "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z",
-                                    "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z",
-                                    "2018-09-19T06:30:00.000Z"
-                                ]
-                            },
-                            tooltip: {
-                                x: {
-                                    format: 'dd/MM/yy HH:mm'
-                                },
+                        const resortSelect = document.getElementById("resortSelect");
+                        const charts = document.querySelectorAll(".chart-wrapper");
+
+                        resortSelect.addEventListener("change", function() {
+                            charts.forEach(chart => chart.style.display = "none"); // Hide all
+                            const selectedResort = this.value;
+                            if (selectedResort) {
+                                document.getElementById(`chart-${selectedResort}`).style.display =
+                                    "block"; // Show selected
                             }
-                        }).render();
+                        });
                     });
                     </script>
-
 
 
 
@@ -197,7 +209,7 @@ Toast.fire({
                                         $current_date = date('Y-m-d');
 
                                         // Fetch recent check-ins
-                                        $sql = "SELECT * FROM `guests` WHERE DATE(`date_created`) = DATE(NOW()) AND `arrival_date_time` IS NOT NULL";
+                                        $sql = "SELECT g.*, d.* FROM guests g JOIN guest_destinations d ON g.guest_code = d.guest_code WHERE DATE(g.date_created) = DATE(NOW()) AND g.arrival_date_time IS NOT NULL";
                                         $result = $conn->query($sql);
 
                                         if ($result->num_rows > 0) {
