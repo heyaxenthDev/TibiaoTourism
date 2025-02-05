@@ -79,80 +79,56 @@ include "includes/conn.php";
         <nav class="header-nav ms-auto">
             <ul class="d-flex align-items-center">
 
-                <li class="nav-item dropdown">
+                <?php
+                // Fetch unread notifications for the badge
+                $unreadNotificationsQuery = "SELECT * FROM `notifications` WHERE `status` = 'unread' ORDER BY `id` DESC";
+                $unreadNotificationsResult = $conn->query($unreadNotificationsQuery);
 
-                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-bell"></i>
-                        <span class="badge bg-primary badge-number">4</span>
-                    </a><!-- End Notification Icon -->
+                // Fetch all notifications for the dropdown menu
+                $allNotificationsQuery = "SELECT * FROM `notifications` ORDER BY `id` DESC";
+                $allNotificationsResult = $conn->query($allNotificationsQuery);
+                ?>
 
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-                        <li class="dropdown-header">
-                            You have 4 new notifications
-                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown"
+                    onclick="markNotificationsAsRead(); return false;">
+                    <i class="bi bi-bell"></i>
+                    <?php if ($unreadNotificationsResult->num_rows > 0): ?>
+                    <span
+                        class="badge bg-primary badge-number"><?php echo $unreadNotificationsResult->num_rows; ?></span>
+                    <?php endif; ?>
+                </a><!-- End Notification Icon -->
 
-                        <li class="notification-item">
-                            <i class="bi bi-exclamation-circle text-warning"></i>
-                            <div>
-                                <h4>Lorem Ipsum</h4>
-                                <p>Quae dolorem earum veritatis oditseno</p>
-                                <p>30 min. ago</p>
-                            </div>
-                        </li>
 
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+                    <li class="dropdown-header">
+                        You have <?php echo $unreadNotificationsResult->num_rows; ?> new notifications
+                        <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
 
-                        <li class="notification-item">
-                            <i class="bi bi-x-circle text-danger"></i>
-                            <div>
-                                <h4>Atque rerum nesciunt</h4>
-                                <p>Quae dolorem earum veritatis oditseno</p>
-                                <p>1 hr. ago</p>
-                            </div>
-                        </li>
+                    <?php while ($notification = $allNotificationsResult->fetch_assoc()): ?>
+                    <li class="notification-item">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        <div>
+                            <h4>Notification</h4>
+                            <p><?php echo htmlspecialchars($notification['description']); ?></p>
+                            <p><?php echo htmlspecialchars($notification['status']); ?></p>
+                        </div>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <?php endwhile; ?>
 
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="notification-item">
-                            <i class="bi bi-check-circle text-success"></i>
-                            <div>
-                                <h4>Sit rerum fuga</h4>
-                                <p>Quae dolorem earum veritatis oditseno</p>
-                                <p>2 hrs. ago</p>
-                            </div>
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="notification-item">
-                            <i class="bi bi-info-circle text-primary"></i>
-                            <div>
-                                <h4>Dicta reprehenderit</h4>
-                                <p>Quae dolorem earum veritatis oditseno</p>
-                                <p>4 hrs. ago</p>
-                            </div>
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li class="dropdown-footer">
-                            <a href="#">Show all notifications</a>
-                        </li>
-
-                    </ul><!-- End Notification Dropdown Items -->
-
+                    <li class="dropdown-footer">
+                        <a href="#">Show all notifications</a>
+                    </li>
+                </ul><!-- End Notification Dropdown Items -->
                 </li><!-- End Notification Nav -->
+
+
 
                 <li class="nav-item dropdown pe-3">
 
@@ -213,3 +189,24 @@ include "includes/conn.php";
         </nav><!-- End Icons Navigation -->
 
     </header><!-- End Header -->
+
+    <script>
+    function markNotificationsAsRead() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "mark_notifications_as_read.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                console.log("AJAX request completed with status:", xhr.status);
+                if (xhr.status === 200) {
+                    console.log("Server response:", xhr.responseText);
+                    // Optional: Refresh the notification list without reloading the page
+                    // Here you can implement functionality to update the notification list dynamically
+                } else {
+                    console.error("Error in AJAX request");
+                }
+            }
+        };
+        xhr.send();
+    }
+    </script>

@@ -158,9 +158,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) 
 }
 
 
-function addNotification($conn, $description, $status) {
-    $stmt = $conn->prepare("INSERT INTO `notifications` (`description`, `status`) VALUES (?, ?)");
-    $stmt->bind_param("ss", $description, $status);
+function addNotification($conn, $guestCodeNotif, $description, $status) {
+    $stmt = $conn->prepare("INSERT INTO `notifications` (`guest_code`,`description`, `status`) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $guestCodeNotif, $description, $status);
     $stmt->execute();
     $stmt->close();
 }
@@ -187,7 +187,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['qr_code'])) {
         // Add notification
         $description = "Guest with code " . $row['guest_code'] . " has confirmed their arrival.";
         $status = "unread"; // Or any status you want to set
-        addNotification($conn, $description, $status);
+        $guestCodeNotif = $guestCode;
+        addNotification($conn, $guestCodeNotif, $description, $status);
 
         echo json_encode([
             'success' => true,
