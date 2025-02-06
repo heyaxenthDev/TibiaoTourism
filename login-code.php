@@ -91,7 +91,6 @@ if (isset($_POST['LoginAdmin'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) {
-
     // Get form data
     $firstName = $conn->real_escape_string($_POST['first_name']);
     $lastName = $conn->real_escape_string($_POST['last_name']);
@@ -107,6 +106,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) 
     } else {
         $destinations = [$_POST['destination']]; // Single destination as array
     }
+
+    // Get additional guests
+    $additionalGuestsFirstName = $_POST['additional_guest_first_name'] ?? [];
+    $additionalGuestsLastName = $_POST['additional_guest_last_name'] ?? [];
+    $additionalGuestsAge = $_POST['additional_guest_age'] ?? [];
 
     $emptyString = null;
 
@@ -124,18 +128,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) 
     }
 
     if ($stmt->execute()) {
-        
         // Insert destinations into `guest_destinations` table
         $stmtDestination = $conn->prepare("INSERT INTO `guest_destinations` (`guest_code`, `destination`) VALUES (?, ?)");
-
         foreach ($destinations as $destination) {
             $cleanDestination = $conn->real_escape_string($destination);
             $stmtDestination->bind_param("ss", $guestCode, $cleanDestination);
             $stmtDestination->execute();
         }
-
-        // Close destination statement
         $stmtDestination->close();
+
+        // Insert additional guests into `additional_guests` table
+        $stmtAdditionalGuest = $conn->prepare("INSERT INTO `additional_guests` (`guest_code`, `firstname`, `lastname`, `age`) VALUES (?, ?, ?, ?)");
+        for ($i = 0; $i < count($additionalGuestsFirstName); $i++) {
+            $additionalGuestFirstName = $conn->real_escape_string($additionalGuestsFirstName[$i]);
+            $additionalGuestLastName = $conn->real_escape_string($additionalGuestsLastName[$i]);
+            $additionalGuestAge = $conn->real_escape_string($additionalGuestsAge[$i]);
+            $stmtAdditionalGuest->bind_param("ssss", $guestCode, $additionalGuestFirstName, $additionalGuestLastName, $additionalGuestAge);
+            $stmtAdditionalGuest->execute();
+        }
+        $stmtAdditionalGuest->close();
 
         // Set success message and redirect
         $_SESSION['status'] = "Success";
@@ -158,53 +169,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GuestRegistration'])) 
 }
 
 
-function addNotification($conn, $guestCodeNotif, $description, $status) {
-    $stmt = $conn->prepare("INSERT INTO `notifications` (`guest_code`,`description`, `status`) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $guestCodeNotif, $description, $status);
+
+function addNotification($conn, $guestCodeNotif, $description, $status, $currentResort) {
+    $stmt = $conn->prepare("INSERT INTO `notifications` (`guest_code`, `description`, `status`, `current_resort`) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $guestCodeNotif, $description, $status, $currentResort);
     $stmt->execute();
     $stmt->close();
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['qr_code'])) {
-    $qr_code = $conn->real_escape_string($_POST['qr_code']);
-    $query = "SELECT * FROM `guests` WHERE guest_code = '$qr_code'";
-    $result = $conn->query($query);
+    try {
+        $qr_code = $conn->real_escape_string($_POST['qr_code']);
+        $query = "SELECT g.*, d.*, r.* FROM guests g JOIN guest_destinations d ON g.guest_code = d.guest_code JOIN resorts r ON d.destination = r.name  WHERE g.guest_code = '$qr_code'";
+        $result = $conn->query($query);
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
 
-        // Check if guest has multiple destinations
-        $destinations = [];
-        $destinationQuery = "SELECT destination FROM `guest_destinations` WHERE guest_code = '{$row['guest_code']}'";
-        $destinationResult = $conn->query($destinationQuery);
+            // Check if guest has multiple destinations
+            $destinations = [];
+            $destinationQuery = "SELECT destination FROM `guest_destinations` WHERE guest_code = '{$row['guest_code']}'";
+            $destinationResult = $conn->query($destinationQuery);
 
-        if ($destinationResult->num_rows > 0) {
-            while ($destinationRow = $destinationResult->fetch_assoc()) {
-                $destinations[] = $destinationRow['destination'];
+            if ($destinationResult->num_rows > 0) {
+                while ($destinationRow = $destinationResult->fetch_assoc()) {
+                    $destinations[] = $destinationRow['destination'];
+                }
             }
+
+            // Add notification
+            $description = "Guest with code " . $row['guest_code'] . " has confirmed their arrival.";
+            $status = "unread"; // Or any status you want to set
+            $guestCodeNotif = $qr_code;
+            addNotification($conn, $guestCodeNotif, $description, $status, null);
+
+            echo json_encode([
+                'success' => true,
+                'guest_code' => $row['guest_code'],
+                'id' => $row['id'],
+                'firstname' => $row['firstname'],
+                'lastname' => $row['lastname'],
+                'age' => $row['age'],
+                'email' => $row['email'] ?? "Not Applicable",
+                'phone' => $row['phone'] ?? "Not Applicable",
+                'destination' => $destinations, // Now an array
+                'type_of_stay' => $row['type_of_stay'],
+                'arrival_date_time' => $row['arrival_date_time'] ?? "Not yet Checked In",
+                'current_resort' => $row['name'] 
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Guest not found']);
         }
-
-        // Add notification
-        $description = "Guest with code " . $row['guest_code'] . " has confirmed their arrival.";
-        $status = "unread"; // Or any status you want to set
-        $guestCodeNotif = $guestCode;
-        addNotification($conn, $guestCodeNotif, $description, $status);
-
-        echo json_encode([
-            'success' => true,
-            'guest_code' => $row['guest_code'],
-            'id' => $row['id'],
-            'firstname' => $row['firstname'],
-            'lastname' => $row['lastname'],
-            'age' => $row['age'],
-            'email' => $row['email'] ?? "Not Applicable",
-            'phone' => $row['phone'] ?? "Not Applicable",
-            'destination' => $destinations, // Now an array
-            'type_of_stay' => $row['type_of_stay'],
-            'arrival_date_time' => $row['arrival_date_time'] ?? "Not yet Checked In"
-        ]);
-    } else {
-        echo json_encode(['success' => false]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
 

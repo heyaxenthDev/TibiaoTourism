@@ -196,6 +196,40 @@ include "includes/conn.php";
                                     <label class="form-check-label" for="overnight">Over Night Stay</label>
                                 </div>
                             </div>
+
+                            <!-- Additional Guests Section -->
+                            <div class="col-md-12">
+                                <label class="form-label">Additional Guests</label>
+                                <div id="additionalGuestsDiv">
+                                    <div class="row g-3 additionalGuest">
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    name="additional_guest_first_name[]" placeholder="First Name">
+                                                <label>First Name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    name="additional_guest_last_name[]" placeholder="Last Name">
+                                                <label>Last Name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mb-3">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control form-control-sm"
+                                                    name="additional_guest_age[]" placeholder="Age">
+                                                <label>Age</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-secondary mt-3" id="addGuestButton">Add
+                                    Another
+                                    Guest</button>
+                            </div>
+
                             <div class="col-12">
                                 <button type="submit" class="btn read-more" name="GuestRegistration">Register</button>
                             </div>
@@ -239,13 +273,38 @@ include "includes/conn.php";
                                 }
                             });
                         });
+
+                        document.getElementById('addGuestButton').addEventListener('click', function() {
+                            var additionalGuestsDiv = document.getElementById('additionalGuestsDiv');
+                            var newGuestDiv = document.createElement('div');
+                            newGuestDiv.className = 'row g-3 additionalGuest';
+                            newGuestDiv.innerHTML = `
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control form-control-sm" name="additional_guest_first_name[]" placeholder="First Name">
+                                        <label>First Name</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control form-control-sm" name="additional_guest_last_name[]" placeholder="Last Name">
+                                        <label>Last Name</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control form-control-sm" name="additional_guest_age[]" placeholder="Age">
+                                        <label>Age</label>
+                                    </div>
+                                </div>
+                            `;
+                            additionalGuestsDiv.appendChild(newGuestDiv);
+                        });
                         </script>
                     </div>
                 </div>
             </div>
         </section><!-- /About Section -->
-
-
 
     </main>
 

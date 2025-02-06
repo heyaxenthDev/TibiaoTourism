@@ -1,5 +1,6 @@
 <?php 
 session_start();
+include "includes/conn.php";
 ?>
 
 <!DOCTYPE html>
@@ -65,9 +66,10 @@ session_start();
                                             <dotlottie-player
                                                 src="https://lottie.host/c5a4b3e2-7c24-4f96-a463-567a6ebbf16f/W1GAfFygj7.lottie"
                                                 background="transparent" speed="1" style="width: 350px; height: 350px;"
-                                                loop autoplay></dotlottie-player>
+                                                loop autoplay>
+                                            </dotlottie-player>
 
-                                            <label for="qrInput">Scan QR Code:</label><br>
+                                            <label for="qrInput">Scan QR Code:</label>
                                             <input type="text" class="form-control" id="qrInput" name="qr_code"
                                                 autofocus>
                                         </form>
@@ -89,58 +91,104 @@ session_start();
                                                 .then(response => response.json())
                                                 .then(data => {
                                                     if (data.success) {
-                                                        Swal.fire({
-                                                            title: "Guest Information",
-                                                            html: `
-                                                                <p><strong>Name:</strong> ${data.firstname} ${data.lastname}</p>
-                                                                <p><strong>Age:</strong> ${data.age}</p>
-                                                                <p><strong>Email:</strong> ${data.email}</p>
-                                                                <p><strong>Phone:</strong> ${data.phone}</p>
-                                                                <p><strong>Destination:</strong> ${data.destination}</p>
-                                                                <p><strong>Type of Stay:</strong> ${data.type_of_stay}</p>
-                                                                <p><strong>Arrival Date/Time:</strong> ${data.arrival_date_time}</p>
-                                                            `,
-                                                            showCancelButton: true,
-                                                            confirmButtonText: 'Confirm Arrival',
-                                                            cancelButtonText: 'Cancel'
-                                                        }).then((result) => {
-                                                            if (result.isConfirmed) {
-                                                                // Update arrival_date_time in the database
-                                                                fetch('update-arrival.php', {
-                                                                        method: 'POST',
-                                                                        body: JSON.stringify({
-                                                                            guest_code: data
-                                                                                .guest_code
-                                                                        })
-                                                                    })
-                                                                    .then(response => response
-                                                                        .json())
-                                                                    .then(updateData => {
-                                                                        if (updateData
-                                                                            .success) {
-                                                                            Swal.fire(
-                                                                                'Confirmed!',
-                                                                                'Guest arrival time has been updated.',
-                                                                                'success'
+                                                        // Fetch resort names for the dropdown
+                                                        fetch('get-resorts.php')
+                                                            .then(response => response.json())
+                                                            .then(resortData => {
+                                                                if (resortData.error) {
+                                                                    Swal.fire('Error!',
+                                                                        'An error occurred while fetching resorts.',
+                                                                        'error');
+                                                                    return;
+                                                                }
+
+                                                                let resortOptions = resortData.map(
+                                                                    resort =>
+                                                                    `<option value="${resort.name}">${resort.name}</option>`
+                                                                ).join('');
+
+                                                                Swal.fire({
+                                                                    title: "Guest Information",
+                                                                    html: `
+                                    <p><strong>Name:</strong> ${data.firstname} ${data.lastname}</p>
+                                    <p><strong>Age:</strong> ${data.age}</p>
+                                    <p><strong>Email:</strong> ${data.email}</p>
+                                    <p><strong>Phone:</strong> ${data.phone}</p>
+                                    <p><strong>Destination:</strong> ${data.destination}</p>
+                                    <p><strong>Type of Stay:</strong> ${data.type_of_stay}</p>
+                                    <p><strong>Arrival Date/Time:</strong> ${data.arrival_date_time}</p>
+                                    <label for="currentResort">Current Resort:</label>
+                                    <select id="currentResort" class="swal2-input">${resortOptions}</select>
+                                `,
+                                                                    showCancelButton: true,
+                                                                    confirmButtonText: 'Confirm Arrival',
+                                                                    cancelButtonText: 'Cancel',
+                                                                    preConfirm: () => {
+                                                                        const
+                                                                            currentResort =
+                                                                            Swal.getPopup()
+                                                                            .querySelector(
+                                                                                '#currentResort'
+                                                                            ).value;
+                                                                        if (!
+                                                                            currentResort) {
+                                                                            Swal.showValidationMessage(
+                                                                                `Please select a resort`
                                                                             );
-                                                                        } else {
-                                                                            Swal.fire('Error!',
-                                                                                'Could not update arrival time.',
-                                                                                'error');
                                                                         }
-                                                                        // Clear the input field
+                                                                        return currentResort;
+                                                                    }
+                                                                }).then((result) => {
+                                                                    if (result.isConfirmed) {
+                                                                        // Update arrival_date_time in the database
+                                                                        fetch('update-arrival.php', {
+                                                                                method: 'POST',
+                                                                                body: JSON
+                                                                                    .stringify({
+                                                                                        guest_code: data
+                                                                                            .guest_code,
+                                                                                        current_resort: result
+                                                                                            .value
+                                                                                    })
+                                                                            })
+                                                                            .then(response =>
+                                                                                response.json())
+                                                                            .then(
+                                                                                updateData => {
+                                                                                    if (updateData
+                                                                                        .success
+                                                                                    ) {
+                                                                                        Swal.fire(
+                                                                                            'Confirmed!',
+                                                                                            'Guest arrival time has been updated.',
+                                                                                            'success'
+                                                                                        );
+                                                                                    } else {
+                                                                                        Swal.fire(
+                                                                                            'Error!',
+                                                                                            'Could not update arrival time.',
+                                                                                            'error'
+                                                                                        );
+                                                                                    }
+                                                                                    // Clear the input field
+                                                                                    document
+                                                                                        .getElementById(
+                                                                                            'qrInput'
+                                                                                        )
+                                                                                        .value =
+                                                                                        '';
+                                                                                });
+                                                                    } else {
+                                                                        // Clear the input field if the confirmation dialog is canceled
                                                                         document.getElementById(
                                                                                 'qrInput')
                                                                             .value = '';
-                                                                    });
-                                                            } else {
-                                                                // Clear the input field if the confirmation dialog is canceled
-                                                                document.getElementById('qrInput')
-                                                                    .value = '';
-                                                            }
-                                                        });
+                                                                    }
+                                                                });
+                                                            });
                                                     } else {
-                                                        Swal.fire('Error!', 'Guest not found.', 'error');
+                                                        Swal.fire('Error!', data.error ||
+                                                            'Guest not found.', 'error');
                                                         // Clear the input field
                                                         document.getElementById('qrInput').value = '';
                                                     }
@@ -160,16 +208,16 @@ session_start();
                                     });
                                     </script>
 
-
-
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
+            </section>
+
+
+
         </div>
-        </section>
 
         </div>
     </main>
