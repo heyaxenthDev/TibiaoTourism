@@ -302,6 +302,25 @@ include "includes/conn.php";
                         });
                         </script>
                     </div>
+
+                    <div class="col-lg-6 register-images mt-5 pt-5" data-aos="fade-up" data-aos-delay="200">
+                        <div class="row gy-4">
+                            <div class="col-lg-6">
+                                <img src="assets/img/featured00.jpg" class="img-fluid" alt="">
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="row gy-4">
+                                    <div class="col-lg-12">
+                                        <img src="assets/img/tibiao2.webp" class="img-fluid" alt="">
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <img src="assets/img/tibiao9.webp" class="img-fluid" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section><!-- /About Section -->
