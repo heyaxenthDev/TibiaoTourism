@@ -36,6 +36,7 @@ include "includes/conn.php";
     <link href="assets/css/style.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="assets/js/sweetalert2.all.min.js"></script>
 
 
 </head>
@@ -176,7 +177,7 @@ include "includes/conn.php";
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="\TibiaoTourism/admin-logout.php">
+                            <a class="dropdown-item d-flex align-items-center" href=".././admin-logout.php">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Sign Out</span>
                             </a>

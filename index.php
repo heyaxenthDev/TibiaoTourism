@@ -50,7 +50,7 @@ include "includes/conn.php";
                 </ul>
             </nav>
 
-            <a class="btn-getstarted" href="index#register">Get Started</a>
+            <a class="btn-getstarted" href="resortLogin">Log in as Resort</a>
         </div>
     </header>
 

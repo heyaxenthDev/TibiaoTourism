@@ -22,12 +22,13 @@
             </a>
         </li><!-- End Resort Data Nav -->
 
-        <!-- <li class="nav-item">
-            <a class="nav-link <?php echo $current_page == '#' ? '' : 'collapsed'; ?>" href="#">
-                <i class="bi bi-bell"></i>
-                <span>Notifications</span>
+        <li class="nav-item">
+            <a class="nav-link <?php echo $current_page == 'resort account management.php' ? '' : 'collapsed'; ?>"
+                href="resort account management.php">
+                <i class="bi bi-shield-lock"></i>
+                <span>Resort Account Management</span>
             </a>
-        </li>End Notifications Nav -->
+        </li><!-- End Notifications Nav -->
 
         <li class="nav-heading">User</li>
 

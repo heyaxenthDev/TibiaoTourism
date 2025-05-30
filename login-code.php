@@ -225,5 +225,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['qr_code'])) {
     }
 }
 
+if (isset($_POST['LoginResort'])) {
+     // Get form data
+     $resort = $conn->real_escape_string($_POST['resort']);
+     $password = $conn->real_escape_string($_POST['password']);
+ 
+     // Query the database for the user
+     $sql = "SELECT * FROM resorts WHERE resort_code = '$resort'";
+     $result = $conn->query($sql);
+ 
+     if ($result->num_rows > 0) {
+         // User found
+         $row = $result->fetch_assoc();
+         // Verify the password
+         if (password_verify($password, $row['password'])) {
+             // Password is correct
+             $_SESSION['resort_auth'] = true;
+             $_SESSION['resort_id'] = $row['id'];
+             $_SESSION['resort_name'] = $row['name'];
+             $_SESSION['resort_code'] = $row['resort_code'];
+             // Redirect to dashboard or any other page
+             $_SESSION['logged'] = "Logged in successfully";
+             $_SESSION['logged_icon'] = "success";
+             header("Location: client/dashboard.php");
+         } else {
+             // Password is incorrect, display an error message
+             $_SESSION['entered_resort'] = $resort;
+             $_SESSION['status'] = "Password Error";
+             $_SESSION['status_text'] = "Incorrect password. Please try again.";
+             $_SESSION['status_code'] = "error";
+             $_SESSION['status_btn'] = "Back";
+             header("Location: {$_SERVER['HTTP_REFERER']}");
+             exit();
+         }
+     } else {
+         // User not found
+         $_SESSION['status'] = "Login Error";
+         $_SESSION['status_text'] = "No resort found with this name.";
+         $_SESSION['status_code'] = "error";
+         $_SESSION['status_btn'] = "Back";
+         header("Location: {$_SERVER['HTTP_REFERER']}");
+         exit();
+     }
+}
+
 $conn->close();
 ?>

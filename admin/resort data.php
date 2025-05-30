@@ -29,44 +29,8 @@ include "includes/alert.php";
                     }
                 ?>
             </select>
-
-            <button class="btn btn-primary" data-bs-target="#NewResortData" data-bs-toggle="modal">
-                <i class="bi bi-clipboard-plus" data-bs-toggle="tooltip" data-bs-title="Add New Resort Data"></i>
-            </button>
         </div>
     </div><!-- End Page Title -->
-
-    <!-- Modal -->
-    <div class="modal fade" id="NewResortData" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add New Resort Data</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="code.php" method="POST">
-                    <div class="modal-body p-3">
-                        <img src="assets/img/undraw_destination_re_sr74.svg" class="img-fluid mb-3" alt="">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="floatingResortName" name="resort_name"
-                                placeholder="Resort Name" required>
-                            <label for="floatingResortName">Resort Name</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="floatingResortAddress" name="resort_address"
-                                placeholder="Resort Address" required>
-                            <label for="floatingResortAddress">Resort Address</label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" name="NewResort">Submit</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <section class="section">
         <div class="row">
@@ -84,6 +48,7 @@ include "includes/alert.php";
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Location</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -96,6 +61,36 @@ include "includes/alert.php";
         </div>
     </section>
 </main><!-- End #main -->
+
+<!-- View Tourists Modal -->
+<div class="modal fade" id="viewTouristsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tourist Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Main Guest Information</h6>
+                        <div id="mainGuestInfo" class="border rounded p-3"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Destinations</h6>
+                        <div id="destinationsInfo" class="border rounded p-3"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Tourist List</h6>
+                        <div id="touristList" class="border rounded p-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 $(document).ready(function() {
@@ -132,6 +127,10 @@ $(document).ready(function() {
                                 item.email || 'No email',
                                 item.phone || '',
                                 item.destination || '',
+                                `<button type='button' class='btn btn-primary btn-sm fetch-tourists' 
+                                    data-guest-code='${item.guest_code}'>
+                                    <i class='bi bi-download'></i> Fetch Tourists
+                                </button>`
                             ]).draw(false);
                         });
                     } else {
@@ -146,6 +145,111 @@ $(document).ready(function() {
                 }
             });
         }
+    });
+
+    // Handle fetch tourists button click
+    $(document).on('click', '.fetch-tourists', function() {
+        const guestCode = $(this).data('guest-code');
+        const button = $(this);
+
+        // Disable button and show loading state
+        button.prop('disabled', true).html('<i class="bi bi-arrow-repeat spin"></i> Fetching...');
+
+        // Clear previous data
+        $('#mainGuestInfo').html('');
+        $('#destinationsInfo').html('');
+        $('#touristList').html('');
+
+        // Fetch tourist details
+        $.ajax({
+            url: 'get_tourist_details.php',
+            type: 'POST',
+            data: {
+                guest_code: guestCode
+            },
+            success: function(response) {
+                try {
+                    const data = JSON.parse(response);
+
+                    if (data.status === 'error') {
+                        alert(data.message);
+                        return;
+                    }
+
+                    const guestData = data.data;
+
+                    // Update main guest info
+                    let mainGuestHtml = `
+                        <p><strong>Name:</strong> ${guestData.main_guest.firstname} ${guestData.main_guest.lastname}</p>
+                        <p><strong>Email:</strong> ${guestData.main_guest.email || 'N/A'}</p>
+                        <p><strong>Phone:</strong> ${guestData.main_guest.phone || 'N/A'}</p>
+                        <p><strong>Arrival:</strong> ${guestData.main_guest.formatted_arrival_time || 'N/A'}</p>
+                        <p><strong>Type of Stay:</strong> ${guestData.main_guest.type_of_stay || 'N/A'}</p>
+                    `;
+                    $('#mainGuestInfo').html(mainGuestHtml);
+
+                    // Update destinations info
+                    let destinationsHtml = '<ul class="list-unstyled">';
+                    if (guestData.destinations.length > 0) {
+                        guestData.destinations.forEach(dest => {
+                            destinationsHtml +=
+                                `<li><i class="bi bi-geo-alt"></i> ${dest.resort_name || dest.destination}</li>`;
+                        });
+                    } else {
+                        destinationsHtml += '<li>No destinations found</li>';
+                    }
+                    destinationsHtml += '</ul>';
+                    $('#destinationsInfo').html(destinationsHtml);
+
+                    // Update tourist list
+                    let touristHtml = '<table class="table table-bordered">';
+                    touristHtml += `
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Nationality</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    `;
+                    if (guestData.tourists.length > 0) {
+                        guestData.tourists.forEach(tourist => {
+                            touristHtml += `
+                                <tr>
+                                    <td>${tourist.firstname} ${tourist.lastname}</td>
+                                    <td>${tourist.age || 'N/A'}</td>
+                                    <td>${tourist.gender || 'N/A'}</td>
+                                    <td>${tourist.nationality || 'N/A'}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        touristHtml +=
+                            '<tr><td colspan="4" class="text-center">No tourists found</td></tr>';
+                    }
+                    touristHtml += '</tbody></table>';
+                    $('#touristList').html(touristHtml);
+
+                    // Show the modal
+                    $('#viewTouristsModal').modal('show');
+
+                } catch (error) {
+                    console.error('Error parsing response:', error);
+                    alert('Error loading tourist details. Please try again.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching tourist details:', error);
+                alert('Error loading tourist details. Please try again.');
+            },
+            complete: function() {
+                // Re-enable button and restore original state
+                button.prop('disabled', false).html(
+                    '<i class="bi bi-download"></i> Fetch Tourists');
+            }
+        });
     });
 });
 </script>

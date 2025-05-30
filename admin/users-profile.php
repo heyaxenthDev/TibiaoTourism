@@ -125,14 +125,14 @@ include "includes/sidebar.php";
 
                             <div class="tab-pane fade pt-3" id="profile-change-password">
                                 <!-- Change Password Form -->
-                                <form>
+                                <form action="includes/change-password.php" method="POST">
 
                                     <div class="row mb-3">
                                         <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Current
                                             Password</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="password" type="password" class="form-control"
-                                                id="currentPassword">
+                                            <input name="currentpassword" type="password" class="form-control"
+                                                id="currentPassword" required>
                                         </div>
                                     </div>
 
@@ -141,7 +141,7 @@ include "includes/sidebar.php";
                                             Password</label>
                                         <div class="col-md-8 col-lg-9">
                                             <input name="newpassword" type="password" class="form-control"
-                                                id="newPassword">
+                                                id="newPassword" required minlength="6">
                                         </div>
                                     </div>
 
@@ -150,7 +150,7 @@ include "includes/sidebar.php";
                                             Password</label>
                                         <div class="col-md-8 col-lg-9">
                                             <input name="renewpassword" type="password" class="form-control"
-                                                id="renewPassword">
+                                                id="renewPassword" required minlength="6">
                                         </div>
                                     </div>
 
