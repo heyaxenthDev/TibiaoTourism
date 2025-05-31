@@ -27,9 +27,13 @@ session_start();
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Template Main CSS File -->
     <link href="assets/css/login.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 </head>
 
@@ -70,11 +74,33 @@ session_start();
                                                 required>
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-12 position-relative">
                                             <label for="yourPassword" class="form-label">Password</label>
                                             <input type="password" name="password" class="form-control"
                                                 id="yourPassword" required>
+                                            <i class="bi bi-eye" id="togglePassword"
+                                                style="position: absolute; top: 38px; right: 15px; cursor: pointer; display: none;"></i>
                                         </div>
+
+                                        <script>
+                                        // Show the eye icon when the user types
+                                        document.getElementById("yourPassword").addEventListener("input", function() {
+                                            const toggleIcon = document.getElementById("togglePassword");
+                                            toggleIcon.style.display = this.value ? "block" : "none";
+                                        });
+
+                                        // Toggle visibility
+                                        document.getElementById("togglePassword").addEventListener("click", function() {
+                                            const passwordInput = document.getElementById("yourPassword");
+                                            const isPassword = passwordInput.type === "password";
+                                            passwordInput.type = isPassword ? "text" : "password";
+
+                                            // Toggle icon style
+                                            this.classList.toggle("bi-eye");
+                                            this.classList.toggle("bi-eye-slash");
+                                        });
+                                        </script>
+
 
                                         <div class="col-12">
                                             <button class="btn btn-primary w-100" type="submit"
