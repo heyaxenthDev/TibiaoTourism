@@ -51,11 +51,11 @@ include "includes/alert.php";
                                         echo "<td>" . $row['email'] . "</td>";
                                         echo "<td>" . $row['phone'] . "</td>";
                                         echo "<td>
-                                            <button type='button' class='btn btn-primary btn-sm fetch-tourists' 
-                                                data-guest-code='" . $row['guest_code'] . "'>
-                                                <i class='bi bi-eye'></i> View Details
-                                            </button>
-                                        </td>";
+                                                <button type='button' class='btn btn-primary btn-sm fetch-tourists' 
+                                                    data-guest-code='" . $row['guest_code'] . "'>
+                                                    <i class='bi bi-eye'></i> View Details
+                                                </button>
+                                              </td>";
                                         echo "</tr>";
                                     }
                                 }

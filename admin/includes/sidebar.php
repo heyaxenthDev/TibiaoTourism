@@ -23,8 +23,8 @@
         </li><!-- End Resort Data Nav -->
 
         <li class="nav-item">
-            <a class="nav-link <?php echo $current_page == 'resort account management.php' ? '' : 'collapsed'; ?>"
-                href="resort account management.php">
+            <a class="nav-link <?php echo $current_page == 'ResortAccountManagement.php' ? '' : 'collapsed'; ?>"
+                href="ResortAccountManagement.php">
                 <i class="bi bi-shield-lock"></i>
                 <span>Resort Account Management</span>
             </a>
